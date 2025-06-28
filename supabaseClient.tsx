@@ -1,10 +1,14 @@
-// src/supabaseClient.js
+// /supabaseClient.tsx
 
 import { createClient } from '@supabase/supabase-js';
 
-// As suas chaves vão aqui. É mais seguro guardá-las em variáveis de ambiente (.env)
-// Mas para começar, pode colocar diretamente.
-const supabaseUrl = 'https://hdqrcmxiyanhqligzrpv.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkcXJjbXhpeWFuaHFsaWd6cnB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExMzE0NTYsImV4cCI6MjA2NjcwNzQ1Nn0.efbHgndvp-SHT1TjbjjbXht76Y_fUcRxAPiqeGmCpZU';
+// Busca as variáveis de ambiente de forma segura.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Verifica se as variáveis foram carregadas corretamente.
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("As variáveis de ambiente do Supabase não foram definidas. Verifique o seu ficheiro .env.local");
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
