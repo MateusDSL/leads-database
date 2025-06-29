@@ -1,17 +1,18 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import Image from 'next/image'; 
 import {
   Plus, Search, Filter, Download, TrendingUp, DollarSign, Calendar, Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText,
   Flame, Snowflake, Sun, CheckCircle2, Sparkles
 } from "lucide-react"
-import { addDays, startOfDay, endOfDay, startOfMonth, differenceInDays } from "date-fns";
+import { addDays, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, differenceInDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { StyledCard } from "@/components/ui/styled-card" // <-- Importar o novo card
+import { StyledCard } from "@/components/ui/styled-card" 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -20,7 +21,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { Skeleton } from "@/components/ui/skeleton"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
+import { DateRangePicker } from "@/components/ui/date-range-picker" 
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -97,6 +98,8 @@ const qualificationIcons: { [key in QualificationStatus]: React.ComponentType<{ 
   'Morno': Sun,
   'Venda': CheckCircle2,
 };
+
+const qualificationOptions: QualificationStatus[] = ['Novo', 'Quente', 'Morno', 'Frio', 'Venda'];
 
 const formatPhoneNumber = (phoneStr?: string) => {
   if (!phoneStr) return 'N/A';
@@ -456,7 +459,9 @@ export default function LeadsDatabase() {
                             ))}
                             </SelectContent>
                         </Select>
+                        <DateRangePicker date={dateRange} onDateChange={setDateRange} />
                     </div>
+                    
                     <div className="rounded-lg border-2 border-black overflow-hidden">
                       <Table>
                         <TableHeader>
@@ -495,11 +500,52 @@ export default function LeadsDatabase() {
                                     </div>
                                 </TableCell>
                                 <TableCell>{formatPhoneNumber(lead.phone)}</TableCell>
-                                <TableCell>{lead.origem ?? 'N/A'}</TableCell>
+                                
+                                {/* 2. Início da Célula de Origem Modificada */}
                                 <TableCell>
-                                  <span className={cn( "px-2 py-1 rounded-md text-xs font-bold border-2 border-black", qualificationColors[lead.qualification_status ?? 'Novo'])}>
-                                    {lead.qualification_status ?? "Novo"}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    {lead.origem === 'Google' ? (
+                                      <Image
+                                        src="public/images/logo.webp"
+                                        alt="Logo do Google"
+                                        width={16}
+                                        height={16}
+                                        className="w-4 h-4"
+                                      />
+                                    ) : null}
+                                    <span>{lead.origem ?? 'N/A'}</span>
+                                  </div>
+                                </TableCell>
+                                {/* Fim da Célula de Origem Modificada */}
+
+                                <TableCell>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    "px-2 py-1 h-auto text-xs font-bold border-2 border-black",
+                                                    qualificationColors[lead.qualification_status ?? 'Novo']
+                                                )}
+                                            >
+                                                {lead.qualification_status ?? "Novo"}
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            {qualificationOptions.map(status => {
+                                                const Icon = qualificationIcons[status];
+                                                return (
+                                                    <DropdownMenuItem 
+                                                        key={status} 
+                                                        onSelect={() => handleQualificationChange(lead.id, status)}
+                                                    >
+                                                        <Icon className="w-4 h-4 mr-2" />
+                                                        {status}
+                                                    </DropdownMenuItem>
+                                                )
+                                            })}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </TableCell>
                                 </TableRow>
                             ))
