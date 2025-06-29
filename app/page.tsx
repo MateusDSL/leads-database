@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import Image from 'next/image'; 
+import Image from 'next/image';
 import {
   Plus, Search, Filter, Download, TrendingUp, DollarSign, Calendar, Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText,
-  Flame, Snowflake, Sun, CheckCircle2, Sparkles
+  Flame, Snowflake, Sun, CheckCircle2, Sparkles, Pencil
 } from "lucide-react"
 import { addDays, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, differenceInDays } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -12,16 +12,18 @@ import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { StyledCard } from "@/components/ui/styled-card" 
+import { StyledCard } from "@/components/ui/styled-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { DateRangePicker } from "@/components/ui/date-range-picker" 
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -155,6 +157,9 @@ export default function LeadsDatabase() {
   });
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false);
+  const [newBulkStatus, setNewBulkStatus] = useState<QualificationStatus | null>(null);
 
   useEffect(() => {
     async function getLeads() {
@@ -304,6 +309,47 @@ export default function LeadsDatabase() {
     }
   };
   
+  const handleRowSelect = (leadId: number) => {
+    setSelectedRows(prev => 
+      prev.includes(leadId) 
+        ? prev.filter(id => id !== leadId)
+        : [...prev, leadId]
+    );
+  };
+
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
+      setSelectedRows(filteredLeads.map(lead => lead.id));
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (!newBulkStatus || selectedRows.length === 0) return;
+
+    setLeads(prevLeads =>
+      prevLeads.map(lead =>
+        selectedRows.includes(lead.id)
+          ? { ...lead, qualification_status: newBulkStatus }
+          : lead
+      )
+    );
+
+    const updatePromises = selectedRows.map(id =>
+      supabase
+        .from('leads')
+        .update({ qualification_status: newBulkStatus })
+        .eq('id', id)
+    );
+    
+    await Promise.all(updatePromises);
+
+    setSelectedRows([]);
+    setNewBulkStatus(null);
+    setIsBulkEditDialogOpen(false);
+  };
+
   const originFilterOptions = ["Todos", "Google", "Meta", "Não Rastreada"];
 
   return (
@@ -460,12 +506,55 @@ export default function LeadsDatabase() {
                             </SelectContent>
                         </Select>
                         <DateRangePicker date={dateRange} onDateChange={setDateRange} />
+                        <Dialog open={isBulkEditDialogOpen} onOpenChange={setIsBulkEditDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="border-2 border-black font-bold" disabled={selectedRows.length === 0}>
+                              <Pencil className="w-4 h-4 mr-2"/>
+                              Editar ({selectedRows.length})
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Editar Leads em Massa</DialogTitle>
+                              <DialogDescription>
+                               Selecione a nova etiqueta para os {selectedRows.length} leads selecionados.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="py-4">
+                              <RadioGroup onValueChange={(value) => setNewBulkStatus(value as QualificationStatus)}>
+                                {qualificationOptions.map(status => (
+                                  <div key={status} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={status} id={status} />
+                                    <Label htmlFor={status}>{status}</Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </div>
+                            <DialogFooter>
+                              <Button variant="ghost" onClick={() => setIsBulkEditDialogOpen(false)}>Cancelar</Button>
+                              <Button onClick={handleBulkUpdate} disabled={!newBulkStatus}>Salvar Alterações</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                     </div>
                     
                     <div className="rounded-lg border-2 border-black overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow className="border-b-2 border-black bg-slate-50">
+                            <TableHead className="w-[50px]">
+                              <Checkbox
+                                checked={
+                                  filteredLeads.length > 0 && selectedRows.length === filteredLeads.length
+                                    ? true
+                                    : selectedRows.length > 0 
+                                    ? "indeterminate"
+                                    : false
+                                }
+                                onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                                aria-label="Selecionar todos"
+                              />
+                            </TableHead>
                             <TableHead className="font-bold text-black">Nome</TableHead>
                             <TableHead className="font-bold text-black">Telefone</TableHead>
                             <TableHead className="font-bold text-black">Origem</TableHead>
@@ -476,6 +565,7 @@ export default function LeadsDatabase() {
                           {loading ? (
                             Array.from({ length: 8 }).map((_, i) => (
                               <TableRow key={i} className="border-b-2 border-black">
+                                <TableCell><Skeleton className="h-5 w-5"/></TableCell>
                                 <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
                                 <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
                                 <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
@@ -487,7 +577,15 @@ export default function LeadsDatabase() {
                                 <TableRow 
                                     key={lead.id} 
                                     className="border-b-2 border-black last:border-b-0"
+                                    data-state={selectedRows.includes(lead.id) && "selected"}
                                 >
+                                <TableCell>
+                                  <Checkbox
+                                    checked={selectedRows.includes(lead.id)}
+                                    onCheckedChange={() => handleRowSelect(lead.id)}
+                                    aria-label="Selecionar linha"
+                                  />
+                                </TableCell>
                                 <TableCell 
                                   className="font-bold cursor-pointer"
                                   onClick={() => setSelectedLead(lead)}
@@ -501,22 +599,18 @@ export default function LeadsDatabase() {
                                 </TableCell>
                                 <TableCell>{formatPhoneNumber(lead.phone)}</TableCell>
                                 
-                                {/* 2. Início da Célula de Origem Modificada */}
                                 <TableCell>
                                   <div className="flex items-center gap-2">
                                     {lead.origem === 'Google' ? (
-                                      <Image
-                                        src="public/images/logo.webp"
+                                      <img
+                                        src="/images/logo.webp"
                                         alt="Logo do Google"
-                                        width={16}
-                                        height={16}
                                         className="w-4 h-4"
                                       />
                                     ) : null}
                                     <span>{lead.origem ?? 'N/A'}</span>
                                   </div>
                                 </TableCell>
-                                {/* Fim da Célula de Origem Modificada */}
 
                                 <TableCell>
                                     <DropdownMenu>
@@ -551,7 +645,7 @@ export default function LeadsDatabase() {
                             ))
                           ) : (
                             <TableRow>
-                              <TableCell colSpan={4} className="text-center text-gray-500 py-8">
+                              <TableCell colSpan={5} className="text-center text-gray-500 py-8">
                                 Nenhum lead encontrado com os filtros aplicados.
                               </TableCell>
                             </TableRow>
