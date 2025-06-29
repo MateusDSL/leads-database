@@ -28,3 +28,8 @@ const TooltipContent = React.forwardRef<
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+
+import {
+  Plus, Search, Filter, Download, TrendingUp, DollarSign, Calendar, Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText,
+  Flame, Snowflake, Sun, CheckCircle2, Sparkles // <--- Garantir que estes ícones estão aqui
+} from "lucide-react"
