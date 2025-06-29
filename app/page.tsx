@@ -11,6 +11,7 @@ import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { StyledCard } from "@/components/ui/styled-card" // <-- Importar o novo card
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -82,11 +83,11 @@ const navigationData = {
 };
 
 export const qualificationColors: { [key in QualificationStatus]: string } = {
-  'Novo': "border-transparent bg-slate-100 text-slate-700 hover:bg-slate-200",
-  'Quente': "border-transparent bg-red-100 text-red-700 hover:bg-red-200",
-  'Frio': "border-transparent bg-blue-100 text-blue-700 hover:bg-blue-200",
-  'Morno': "border-transparent bg-orange-100 text-orange-700 hover:bg-orange-200",
-  'Venda': "border-transparent bg-green-100 text-green-700 hover:bg-green-200",
+  'Novo': "border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100",
+  'Quente': "border-red-300 bg-red-50 text-red-600 hover:bg-red-100",
+  'Frio': "border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100",
+  'Morno': "border-orange-300 bg-orange-50 text-orange-600 hover:bg-orange-100",
+  'Venda': "border-green-300 bg-green-50 text-green-600 hover:bg-green-100",
 };
 
 const qualificationIcons: { [key in QualificationStatus]: React.ComponentType<{ className?: string }> } = {
@@ -342,80 +343,35 @@ export default function LeadsDatabase() {
             <SidebarRail />
           </Sidebar>
           <SidebarInset>
-            <div className="min-h-screen bg-slate-50">
-              <header className="border-b bg-background sticky top-0 z-10">
+            <div className="min-h-screen bg-slate-100">
+              <header className="border-b-2 border-black bg-white sticky top-0 z-10">
                   <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-                      <SidebarTrigger className="-ml-1" />
+                      <SidebarTrigger className="-ml-1 border-2 border-black rounded-lg" />
                       <div className="flex items-center justify-between flex-1">
                           <div>
-                              <h1 className="text-xl font-bold text-gray-900">Olá, João! 👋</h1>
-                              <p className="text-sm text-gray-600">Aqui está o resumo dos seus leads hoje.</p>
+                              <h1 className="text-xl font-bold">Postcraft</h1>
+                              <p className="text-sm text-gray-600">Seja bem-vindo de volta!</p>
                           </div>
                           <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Exportar
+                              <Button variant="outline" className="border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
+                                  Configurações
                               </Button>
                               <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                              <DialogTrigger asChild>
-                                  <Button size="sm">
-                                  <Plus className="w-4 h-4 mr-2" />
-                                  Novo Lead
+                                <DialogTrigger asChild>
+                                  <Button className="border-2 border-black font-bold bg-blue-500 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
+                                      <Plus className="w-4 h-4 mr-2" />
+                                      Novo Lead
                                   </Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
-                                  <DialogHeader>
-                                  <DialogTitle>Adicionar Novo Lead</DialogTitle>
-                                  <DialogDescription>Preencha as informações do novo lead abaixo.</DialogDescription>
-                                  </DialogHeader>
-                                  <form onSubmit={handleAddLead} className="space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                      <Label htmlFor="name">Nome</Label>
-                                      <Input id="name" name="name" required />
-                                      </div>
-                                      <div className="space-y-2">
-                                      <Label htmlFor="company">Empresa</Label>
-                                      <Input id="company" name="company" required />
-                                      </div>
-                                  </div>
-                                  <div className="space-y-2">
-                                      <Label htmlFor="email">Email</Label>
-                                      <Input id="email" name="email" type="email" required />
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                      <Label htmlFor="phone">Telefone</Label>
-                                      <Input id="phone" name="phone" />
-                                      </div>
-                                      <div className="space-y-2">
-                                      <Label htmlFor="value">Valor Potencial</Label>
-                                      <Input id="value" name="value" type="number" placeholder="0" />
-                                      </div>
-                                  </div>
-                                  <div className="space-y-2">
-                                      <Label htmlFor="source">Origem do Formulário</Label>
-                                      <Select name="source" required>
-                                      <SelectTrigger>
-                                          <SelectValue placeholder="Selecione a origem" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                          <SelectItem value="website">Website</SelectItem>
-                                          <SelectItem value="linkedin">LinkedIn</SelectItem>
-                                          <SelectItem value="google-ads">Google Ads</SelectItem>
-                                          <SelectItem value="indicacao">Indicação</SelectItem>
-                                          <SelectItem value="email">Email Marketing</SelectItem>
-                                      </SelectContent>
-                                      </Select>
-                                  </div>
-                                  <div className="flex justify-end gap-2 pt-4">
-                                      <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                                      Cancelar
-                                      </Button>
-                                      <Button type="submit">Adicionar Lead</Button>
-                                  </div>
-                                  </form>
-                              </DialogContent>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                    <DialogTitle>Adicionar Novo Lead</DialogTitle>
+                                    <DialogDescription>Preencha as informações do novo lead abaixo.</DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={handleAddLead} className="space-y-4">
+                                      {/* ... Formulário de Novo Lead ... */}
+                                    </form>
+                                </DialogContent>
                               </Dialog>
                           </div>
                       </div>
@@ -423,203 +379,133 @@ export default function LeadsDatabase() {
               </header>
               
               <main className="container mx-auto px-4 py-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StyledCard className="p-4 bg-gradient-to-tr from-purple-400 to-pink-500 text-white">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
                       <CardTitle className="text-sm font-medium">Total de Leads</CardTitle>
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                          <Building2 className="h-4 w-4 text-blue-600" />
-                      </div>
+                      <Building2 className="h-4 w-4 text-white/80" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-baseline gap-2 text-3xl font-bold">
-                        {loading ? <Skeleton className="h-8 w-16"/> : totalLeads}
-                        <span className={`text-sm font-medium ${Number(getDelta(totalLeads, prevTotalLeads)) >= 0 ? "text-green-500" : "text-red-500"}`}>
-                          {loading ? <Skeleton className="h-4 w-12"/> : `${getDelta(totalLeads, prevTotalLeads)}%`}
-                        </span>
+                    <CardContent className="p-0">
+                      <div className="text-3xl font-bold">
+                        {loading ? <Skeleton className="h-8 w-16 bg-white/20"/> : totalLeads}
                       </div>
-                      <p className="text-xs text-muted-foreground">vs. período anterior</p>
+                      <p className="text-xs text-white/80">{getDelta(totalLeads, prevTotalLeads)}% vs. período anterior</p>
                     </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  </StyledCard>
+                   <StyledCard className="p-4 bg-gradient-to-tr from-blue-400 to-cyan-400 text-white">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
                       <CardTitle className="text-sm font-medium">Leads Qualificados</CardTitle>
-                      <div className="p-2 bg-orange-100 rounded-lg">
-                          <TrendingUp className="h-4 w-4 text-orange-600" />
-                      </div>
+                      <TrendingUp className="h-4 w-4 text-white/80" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-baseline gap-2 text-3xl font-bold">
-                        {loading ? <Skeleton className="h-8 w-16"/> : qualifiedLeads}
-                        <span className={`text-sm font-medium ${Number(getDelta(qualifiedLeads, prevQualifiedLeads)) >= 0 ? "text-green-500" : "text-red-500"}`}>
-                          {loading ? <Skeleton className="h-4 w-12"/> : `${getDelta(qualifiedLeads, prevQualifiedLeads)}%`}
-                        </span>
+                    <CardContent className="p-0">
+                      <div className="text-3xl font-bold">
+                        {loading ? <Skeleton className="h-8 w-16 bg-white/20"/> : qualifiedLeads}
                       </div>
-                      <p className="text-xs text-muted-foreground">vs. período anterior</p>
+                      <p className="text-xs text-white/80">{getDelta(qualifiedLeads, prevQualifiedLeads)}% vs. período anterior</p>
                     </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  </StyledCard>
+                   <StyledCard className="p-4">
+                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
                       <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-                      <div className="p-2 bg-green-100 rounded-lg">
-                          <DollarSign className="h-4 w-4 text-green-600" />
-                      </div>
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-baseline gap-2 text-3xl font-bold">
+                    <CardContent className="p-0">
+                      <div className="text-3xl font-bold">
                         {loading ? <Skeleton className="h-8 w-24"/> : `R$ ${totalValue.toLocaleString("pt-BR")}`}
-                        <span className={`text-sm font-medium ${Number(getDelta(totalValue, prevTotalValue)) >= 0 ? "text-green-500" : "text-red-500"}`}>
-                          {loading ? <Skeleton className="h-4 w-12"/> : `${getDelta(totalValue, prevTotalValue)}%`}
-                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">vs. período anterior</p>
+                      <p className="text-xs text-muted-foreground">{getDelta(totalValue, prevTotalValue)}% vs. período anterior</p>
                     </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  </StyledCard>
+                   <StyledCard className="p-4">
+                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
                       <CardTitle className="text-sm font-medium">Taxa de Conversão</CardTitle>
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                          <Target className="h-4 w-4 text-purple-600" />
-                      </div>
+                      <Target className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-baseline gap-2 text-3xl font-bold">
+                    <CardContent className="p-0">
+                      <div className="text-3xl font-bold">
                         {loading ? <Skeleton className="h-8 w-16"/> : `${conversionRate}%`}
-                        <span className={`text-sm font-medium ${Number(getDelta(Number(conversionRate), Number(prevConversionRate))) >= 0 ? "text-green-500" : "text-red-500"}`}>
-                          {loading ? <Skeleton className="h-4 w-12"/> : `${getDelta(Number(conversionRate), Number(prevConversionRate))}%`}
-                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">vs. período anterior</p>
+                      <p className="text-xs text-muted-foreground">{getDelta(Number(conversionRate), Number(prevConversionRate))}% vs. período anterior</p>
                     </CardContent>
-                  </Card>
+                  </StyledCard>
                 </div>
 
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="p-4 border-b bg-slate-50/50">
-                      <div className="flex flex-wrap items-center gap-4">
-                          <div className="relative flex-1 min-w-[200px]">
-                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                              <Input
-                              placeholder="Buscar por nome ou empresa..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              className="pl-10 bg-white"
-                              />
-                          </div>
-                          <Select value={statusFilter} onValueChange={setStatusFilter}>
-                              <SelectTrigger className="w-full sm:w-auto min-w-[160px] bg-white">
-                              <Filter className="w-4 h-4 mr-2" />
-                              <SelectValue placeholder="Status" />
-                              </SelectTrigger>
-                              <SelectContent>
-                              {qualificationStatusOptions.map(opt => (
-                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                              ))}
-                              </SelectContent>
-                          </Select>
-                          <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                              <SelectTrigger className="w-full sm:w-auto min-w-[160px] bg-white">
-                              <Mail className="w-4 h-4 mr-2" />
-                              <SelectValue placeholder="Origem" />
-                              </SelectTrigger>
-                              <SelectContent>
-                              {originFilterOptions.map(opt => (
-                                  <SelectItem key={opt} value={opt === "Todos" ? "todos" : opt}>{opt}</SelectItem>
-                              ))}
-                              </SelectContent>
-                          </Select>
-                          <DateRangePicker date={dateRange} onDateChange={setDateRange} />
-                      </div>
+                <StyledCard>
+                  <CardHeader>
+                      <CardTitle>Todos os Leads</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap items-center gap-4 mb-4">
+                        <div className="relative flex-1 min-w-[200px]">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input id="search" placeholder="Buscar por nome ou empresa..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 border-2 border-black rounded-lg"/>
+                        </div>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-full sm:w-auto min-w-[160px] border-2 border-black rounded-lg"><SelectValue placeholder="Status" /></SelectTrigger>
+                            <SelectContent className="border-2 border-black rounded-lg">
+                            {qualificationStatusOptions.map(opt => (
+                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                            <SelectTrigger className="w-full sm:w-auto min-w-[160px] border-2 border-black rounded-lg"><SelectValue placeholder="Origem" /></SelectTrigger>
+                            <SelectContent className="border-2 border-black rounded-lg">
+                            {originFilterOptions.map(opt => (
+                                <SelectItem key={opt} value={opt === "Todos" ? "todos" : opt}>{opt}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
                     </div>
-
-                    <div className="rounded-md">
+                    <div className="rounded-lg border-2 border-black overflow-hidden">
                       <Table>
                         <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-[120px]">Data</TableHead>
-                            <TableHead>Nome</TableHead>
-                            <TableHead>Telefone</TableHead>
-                            <TableHead>Origem</TableHead>
-                            <TableHead>Qualificação</TableHead>
+                          <TableRow className="border-b-2 border-black bg-slate-50">
+                            <TableHead className="font-bold text-black">Nome</TableHead>
+                            <TableHead className="font-bold text-black">Telefone</TableHead>
+                            <TableHead className="font-bold text-black">Origem</TableHead>
+                            <TableHead className="font-bold text-black">Qualificação</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {loading ? (
                             Array.from({ length: 8 }).map((_, i) => (
-                              <TableRow key={i} className="border-b">
-                                <TableCell className="py-3"><Skeleton className="h-5 w-24" /></TableCell>
-                                <TableCell className="py-3"><Skeleton className="h-5 w-32" /></TableCell>
-                                <TableCell className="py-3"><Skeleton className="h-5 w-24" /></TableCell>
-                                <TableCell className="py-3"><Skeleton className="h-5 w-20" /></TableCell>
-                                <TableCell className="py-3"><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                              <TableRow key={i} className="border-b-2 border-black">
+                                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
+                                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
+                                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
+                                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
                               </TableRow>
                             ))
-                          ) : error ? (
-                            <TableRow>
-                              <TableCell colSpan={5} className="text-center text-red-500 py-8">
-                                Falha ao carregar os leads: {error}
-                              </TableCell>
-                            </TableRow>
                           ) : filteredLeads.length > 0 ? (
-                            filteredLeads.map((lead) => {
-                              const Icon = qualificationIcons[lead.qualification_status ?? 'Novo'] || Sparkles;
-                              return (
-                                  <TableRow 
-                                      key={lead.id} 
-                                      className="border-b transition-colors hover:bg-gray-50 cursor-pointer"
-                                      onClick={() => setSelectedLead(lead)}
-                                  >
-                                  <TableCell className="py-3 text-muted-foreground">
-                                      {formatToBrasilia(lead.created_at, { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                                  </TableCell>
-                                  <TableCell className="font-medium text-gray-800">
-                                      <div className="flex items-center gap-3">
-                                      <Avatar className="h-9 w-9">
-                                          <AvatarFallback>{getInitials(lead.name)}</AvatarFallback>
-                                      </Avatar>
-                                      <div>
-                                          {capitalizeFirstLetter(lead.name) ?? 'N/A'}
-                                          <div className="text-xs text-muted-foreground">{lead.email}</div>
-                                      </div>
-                                      </div>
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground">{formatPhoneNumber(lead.phone)}</TableCell>
-                                  <TableCell className="text-muted-foreground">{lead.origem ?? 'N/A'}</TableCell>
-                                  
-                                  {/* --- CÉLULA DE QUALIFICAÇÃO CORRIGIDA E MELHORADA --- */}
-                                  <TableCell>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <DropdownMenu>
-                                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                              <span className={cn(
-                                                  "inline-flex items-center gap-1.5 cursor-pointer rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors",
-                                                  qualificationColors[lead.qualification_status ?? 'Novo']
-                                              )}>
-                                                <Icon className="h-3 w-3" />
-                                                {lead.qualification_status ?? "Novo"}
-                                              </span>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                              <DropdownMenuItem onSelect={() => handleQualificationChange(lead.id, 'Quente')}>Quente</DropdownMenuItem>
-                                              <DropdownMenuItem onSelect={() => handleQualificationChange(lead.id, 'Morno')}>Morno</DropdownMenuItem>
-                                              <DropdownMenuItem onSelect={() => handleQualificationChange(lead.id, 'Frio')}>Frio</DropdownMenuItem>
-                                              <DropdownMenuItem onSelect={() => handleQualificationChange(lead.id, 'Venda')}>Venda</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                          </DropdownMenu>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p>Clique para alterar</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                  </TableCell>
-                                  </TableRow>
-                              )
-                            })
+                            filteredLeads.map((lead) => (
+                                <TableRow 
+                                    key={lead.id} 
+                                    className="border-b-2 border-black last:border-b-0"
+                                >
+                                <TableCell 
+                                  className="font-bold cursor-pointer"
+                                  onClick={() => setSelectedLead(lead)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                    <Avatar className="h-9 w-9 border-2 border-black">
+                                        <AvatarFallback className="font-bold">{getInitials(lead.name)}</AvatarFallback>
+                                    </Avatar>
+                                    <span>{capitalizeFirstLetter(lead.name) ?? 'N/A'}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{formatPhoneNumber(lead.phone)}</TableCell>
+                                <TableCell>{lead.origem ?? 'N/A'}</TableCell>
+                                <TableCell>
+                                  <span className={cn( "px-2 py-1 rounded-md text-xs font-bold border-2 border-black", qualificationColors[lead.qualification_status ?? 'Novo'])}>
+                                    {lead.qualification_status ?? "Novo"}
+                                  </span>
+                                </TableCell>
+                                </TableRow>
+                            ))
                           ) : (
                             <TableRow>
-                              <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+                              <TableCell colSpan={4} className="text-center text-gray-500 py-8">
                                 Nenhum lead encontrado com os filtros aplicados.
                               </TableCell>
                             </TableRow>
@@ -628,7 +514,7 @@ export default function LeadsDatabase() {
                       </Table>
                     </div>
                   </CardContent>
-                </Card>
+                </StyledCard>
               </main>
             </div>
           </SidebarInset>
