@@ -15,7 +15,7 @@ import {
   SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
   SidebarProvider, SidebarRail, SidebarTrigger
 } from "@/components/ui/sidebar";
-import { Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText } from "lucide-react";
+import { Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText, Users, User } from "lucide-react";
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { LeadsTable } from '@/components/LeadsTable';
 import { StatsCards } from '@/components/StatsCards';
@@ -23,13 +23,37 @@ import { FilterBar } from "@/components/FilterBar";
 import { NewLeadForm } from './NewLeadForm';
 import { supabase } from "../supabaseClient";
 import { Lead, QualificationStatus } from "@/app/page";
+import { LeadsByDayChart } from './LeadsByDayChart';
+import { format } from 'date-fns';
+import { parseUTCToLocalDate } from "@/lib/utils";
+
 
 const navigationData = {
+    // Grupo Principal de Navegação
     navMain: [
-      { title: "Principal", items: [ { title: "Dashboard", url: "#", icon: Home, isActive: true }, { title: "Leads", url: "#", icon: Settings }, { title: "Oportunidades", url: "#", icon: Target } ] },
-      { title: "Comunicação", items: [ { title: "Email Marketing", url: "#", icon: Mail }, { title: "Chamadas", url: "#", icon: Phone } ] },
-      { title: "Relatórios", items: [ { title: "Analytics", url: "#", icon: BarChart3 }, { title: "Relatórios", url: "#", icon: FileText } ] },
-      { title: "Configurações", items: [ { title: "Empresa", url: "#", icon: Building2 }, { title: "Configurações", url: "#", icon: Settings } ] },
+      { 
+        title: "Navegação", 
+        items: [ 
+          { title: "Painel Principal", url: "#", icon: Home, isActive: true }, 
+          { title: "Todos os Leads", url: "#", icon: Users } 
+        ] 
+      },
+      // Grupo para Análises e Relatórios
+      { 
+        title: "Análise", 
+        items: [ 
+          { title: "Relatórios", url: "#", icon: BarChart3 },
+          { title: "Origem dos Leads", url: "#", icon: Target }
+        ] 
+      },
+      // Grupo para Configurações Gerais
+      { 
+        title: "Ajustes", 
+        items: [ 
+          { title: "Minha Conta", url: "#", icon: User },
+          { title: "Configurações", url: "#", icon: Settings } 
+        ] 
+      },
     ],
 };
 
@@ -90,13 +114,37 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
         const matchesSource = sourceFilter === "todos" || lead.origem === sourceFilter;
         let matchesDate = true;
         if (dateRange?.from) {
-            const leadDate = new Date(lead.created_at);
+            // LINHA ALTERADA AQUI
+            const leadDate = parseUTCToLocalDate(lead.created_at);
+
             const fromDate = startOfDay(dateRange.from);
             const toDate = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
-            matchesDate = leadDate >= fromDate && leadDate <= toDate;
+            matchesDate = leadDate ? leadDate >= fromDate && leadDate <= toDate : false;
         }
         return matchesStatus && matchesSource && matchesDate;
     }), [leadsWithOrigin, statusFilter, sourceFilter, dateRange]);
+
+    // Leads por dia para gráfico
+    const leadsByDayData = useMemo(() => {
+        const leadsCountByDay: { [key: string]: number } = {};
+
+        filteredLeadsForCards.forEach(lead => {
+            // ### LINHA ALTERADA AQUI ###
+            // Pega diretamente os 10 primeiros caracteres (YYYY-MM-DD) da data UTC
+            const day = lead.created_at.slice(0, 10);
+
+            if (!leadsCountByDay[day]) {
+                leadsCountByDay[day] = 0;
+            }
+            leadsCountByDay[day]++;
+        });
+
+        // Converte o objeto em um array e ordena por data
+        return Object.entries(leadsCountByDay)
+            .map(([date, count]) => ({ date, leads: count }))
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    }, [filteredLeadsForCards]);
 
     const {
       totalLeads, deltaLeads,
@@ -186,7 +234,6 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
             <div className="min-h-screen bg-slate-100">
             <header className="border-b-2 border-black bg-white sticky top-0 z-10">
                 <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-                    <SidebarTrigger className="-ml-1 border-2 border-black rounded-lg" />
                     <div className="flex items-center justify-between flex-1">
                         <div>
                             <h1 className="text-xl font-bold">WhatsFloat</h1>
@@ -235,6 +282,12 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
                             sales={sales}
                             deltaSales={deltaSales}
                         />
+
+                        {/* ADICIONE O NOVO GRÁFICO AQUI */}
+                        <StyledCard>
+                            <LeadsByDayChart data={leadsByDayData} />
+                        </StyledCard>
+
                         <StyledCard>
                             <CardHeader>
                                 <CardTitle>Todos os Leads</CardTitle>

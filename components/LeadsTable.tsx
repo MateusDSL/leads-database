@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Lead, QualificationStatus, qualificationColors } from '@/app/page';
 import { Flame, Snowflake, Sun, CheckCircle2, Sparkles } from "lucide-react";
+import { format } from 'date-fns';
+
 
 
 const qualificationIcons: { [key in QualificationStatus]: React.ComponentType<{ className?: string }> } = {
@@ -84,6 +86,8 @@ export function LeadsTable({
                 aria-label="Selecionar todos"
               />
             </TableHead>
+            {/* LINHA ADICIONADA AQUI */}
+            <TableHead className="font-bold text-black">Data</TableHead>
             <TableHead className="font-bold text-black">Nome</TableHead>
             <TableHead className="font-bold text-black">Telefone</TableHead>
             <TableHead className="font-bold text-black">Origem</TableHead>
@@ -96,6 +100,8 @@ export function LeadsTable({
             Array.from({ length: 8 }).map((_, i) => (
               <TableRow key={i} className="border-b-2 border-black">
                 <TableCell><Skeleton className="h-5 w-5"/></TableCell>
+                {/* CÉLULA DE SKELETON ADICIONADA AQUI */}
+                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
                 <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
                 <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
                 <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
@@ -117,10 +123,15 @@ export function LeadsTable({
                     aria-label="Selecionar linha"
                   />
                 </TableCell>
+                {/* CÉLULA ADICIONADA AQUI */}
+                <TableCell className="text-sm text-gray-600">
+                  {format(new Date(lead.created_at), "dd/MM/yyyy")}
+                </TableCell>
                 <TableCell
                   className="font-bold cursor-pointer"
                   onClick={() => onLeadClick(lead)}
                 >
+                  {/* ... resto da célula do nome ... */}
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9 border-2 border-black">
                       <AvatarFallback className="font-bold">{getInitials(lead.name)}</AvatarFallback>
@@ -128,6 +139,7 @@ export function LeadsTable({
                     <span>{capitalizeFirstLetter(lead.name) ?? 'N/A'}</span>
                   </div>
                 </TableCell>
+                {/* ... resto das células ... */}
                 <TableCell>{formatPhoneNumber(lead.phone)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
