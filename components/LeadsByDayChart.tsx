@@ -52,7 +52,7 @@ export function LeadsByDayChart({ data }: { data: ChartData[] }) {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => format(new Date(value), "dd/MM")}
+              tickFormatter={(value) => format(new Date(value.replace(/-/g, '/')), "dd/MM")}
             />
             <ChartTooltip
               cursor={false}

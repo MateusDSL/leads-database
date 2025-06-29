@@ -25,8 +25,6 @@ import { supabase } from "../supabaseClient";
 import { Lead, QualificationStatus } from "@/app/page";
 import { LeadsByDayChart } from './LeadsByDayChart';
 import { format } from 'date-fns';
-import { parseUTCToLocalDate } from "@/lib/utils";
-
 
 const navigationData = {
     // Grupo Principal de Navegação
@@ -94,49 +92,40 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
 
     const leadsWithOrigin = useMemo(() => allLeads.map(lead => ({ ...lead, origem: getStandardizedOrigin((lead as any).source, (lead as any).utm_source) })), [allLeads]);
 
-    const filteredLeadsForTable = useMemo(() => leadsWithOrigin.filter((lead) => {
-        const searchLower = searchTerm.toLowerCase();
-        const matchesSearch = (lead.name?.toLowerCase() || '').includes(searchLower);
-        const matchesStatus = statusFilter === "todos" || lead.qualification_status === statusFilter;
-        const matchesSource = sourceFilter === "todos" || lead.origem === sourceFilter;
-        let matchesDate = true;
-        if (dateRange?.from) {
-            const leadDate = new Date(lead.created_at);
-            const fromDate = startOfDay(dateRange.from);
-            const toDate = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
-            matchesDate = leadDate >= fromDate && leadDate <= toDate;
-        }
-        return matchesSearch && matchesStatus && matchesSource && matchesDate;
-    }), [leadsWithOrigin, searchTerm, statusFilter, sourceFilter, dateRange]);
-
     const filteredLeadsForCards = useMemo(() => leadsWithOrigin.filter((lead) => {
         const matchesStatus = statusFilter === "todos" || lead.qualification_status === statusFilter;
         const matchesSource = sourceFilter === "todos" || lead.origem === sourceFilter;
         let matchesDate = true;
         if (dateRange?.from) {
-            // LINHA ALTERADA AQUI
-            const leadDate = parseUTCToLocalDate(lead.created_at);
+            // Agora usamos new Date() diretamente, que interpreta a string UTC corretamente.
+            const leadDate = lead.created_at ? new Date(lead.created_at) : null;
 
             const fromDate = startOfDay(dateRange.from);
             const toDate = dateRange.to ? endOfDay(dateRange.to) : endOfDay(dateRange.from);
             matchesDate = leadDate ? leadDate >= fromDate && leadDate <= toDate : false;
         }
+        // A lógica de busca por termo foi movida para o filtro da tabela para não afetar os cards
         return matchesStatus && matchesSource && matchesDate;
     }), [leadsWithOrigin, statusFilter, sourceFilter, dateRange]);
+
+    const filteredLeadsForTable = useMemo(() => filteredLeadsForCards.filter((lead) => {
+        const searchLower = searchTerm.toLowerCase();
+        return (lead.name?.toLowerCase() || '').includes(searchLower);
+    }), [filteredLeadsForCards, searchTerm]);
 
     // Leads por dia para gráfico
     const leadsByDayData = useMemo(() => {
         const leadsCountByDay: { [key: string]: number } = {};
 
         filteredLeadsForCards.forEach(lead => {
-            // ### LINHA ALTERADA AQUI ###
-            // Pega diretamente os 10 primeiros caracteres (YYYY-MM-DD) da data UTC
-            const day = lead.created_at.slice(0, 10);
-
-            if (!leadsCountByDay[day]) {
-                leadsCountByDay[day] = 0;
+            // Usamos new Date() e formatamos para a data local do navegador
+            if(lead.created_at) {
+                const day = format(new Date(lead.created_at), 'yyyy-MM-dd');
+                if (!leadsCountByDay[day]) {
+                    leadsCountByDay[day] = 0;
+                }
+                leadsCountByDay[day]++;
             }
-            leadsCountByDay[day]++;
         });
 
         // Converte o objeto em um array e ordena por data
