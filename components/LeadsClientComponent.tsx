@@ -189,7 +189,7 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
                     <SidebarTrigger className="-ml-1 border-2 border-black rounded-lg" />
                     <div className="flex items-center justify-between flex-1">
                         <div>
-                            <h1 className="text-xl font-bold">Postcraft</h1>
+                            <h1 className="text-xl font-bold">WhatsFloat</h1>
                             <p className="text-sm text-gray-600">Seja bem-vindo de volta!</p>
                         </div>
                         <div className="flex gap-2">
