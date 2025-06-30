@@ -1,11 +1,11 @@
-// components/user-nav.tsx
 
-"use client"
 
-import { useRouter } from "next/navigation"
-import { supabase } from "@/supabaseClient"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+"use client"; 
+
+import { useRouter } from "next/navigation"; 
+import { supabase } from "@/supabaseClient"; 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,17 +15,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { User, Settings, LogOut, CreditCard, Users } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import { User, Settings, LogOut, CreditCard, Users } from "lucide-react";
 
 export function UserNav() {
-  const router = useRouter()
+  const router = useRouter();
 
+  // 4. A função para fazer o logout
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
-  }
+    await supabase.auth.signOut();
+    router.push('/login'); 
+    router.refresh(); 
+  };
 
   return (
     <DropdownMenu>
@@ -67,13 +68,13 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        {/* Adicionado o onClick para o logout */}
-        <DropdownMenuItem onClick={handleLogout}>
+        {/* 5. O onClick está corretamente associado ao item de menu "Sair" */}
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sair</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

@@ -11,8 +11,6 @@ import {
   Settings, 
   Building2,
   Target,
-  // [!code focus:4]
-  // --- Ícones novos para a secção de Campanhas ---
   Megaphone,
   TrendingUp,
   PieChart
@@ -28,8 +26,7 @@ const navGroups = [
       { id: 'opportunities', title: "Oportunidades", icon: Target, href: "#" },
     ]
   },
-  // [!code focus:8]
-  // --- NOVA SECÇÃO "CAMPANHAS" ADICIONADA ---
+  
   {
     title: "Campanhas",
     items: [
