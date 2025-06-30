@@ -61,10 +61,53 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
     const [allLeads, setAllLeads] = useState<Lead[]>(initialLeads);
     const [error, setError] = useState<string | null>(serverError || null);
     
+    // O useEffect que atualizamos abaixo garante que o estado local
+    // seja atualizado com os dados iniciais do servidor.
     useEffect(() => {
         setAllLeads(initialLeads);
     }, [initialLeads]);
     
+    // --- INÍCIO DO NOVO CÓDIGO PARA REALTIME ---
+    useEffect(() => {
+        // 1. Cria um canal de comunicação único para a tabela 'leads'.
+        const channel = supabase.channel('leads-db-changes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'leads' },
+                (payload) => {
+                    console.log('Alteração recebida!', payload);
+
+                    // 2. Trata cada tipo de evento (INSERT, UPDATE, DELETE)
+                    if (payload.eventType === 'INSERT') {
+                        const newLead = payload.new as Lead;
+                        setAllLeads(currentLeads => [newLead, ...currentLeads]);
+                    } 
+                    else if (payload.eventType === 'UPDATE') {
+                        const updatedLead = payload.new as Lead;
+                        setAllLeads(currentLeads => 
+                            currentLeads.map(lead => 
+                                lead.id === updatedLead.id ? updatedLead : lead
+                            )
+                        );
+                    }
+                    else if (payload.eventType === 'DELETE') {
+                        const deletedLeadId = (payload.old as Lead).id;
+                        setAllLeads(currentLeads => 
+                            currentLeads.filter(lead => lead.id !== deletedLeadId)
+                        );
+                    }
+                }
+            )
+            .subscribe();
+
+        // 3. Função de limpeza: É MUITO IMPORTANTE remover a inscrição 
+        //    quando o componente for "desmontado" para evitar vazamentos de memória.
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [supabase]); // Dependência do cliente supabase para garantir que ele esteja disponível.
+    // --- FIM DO NOVO CÓDIGO PARA REALTIME ---
+
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("todos");
@@ -172,7 +215,7 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
         };
     }, [filteredLeadsForCards, allLeads, dateRange, statusFilter, sourceFilter]);
 
-    const handleLeadAdded = (newLead: Lead) => { setAllLeads(prevLeads => [newLead, ...prevLeads]); };
+    const handleLeadAdded = (newLead: Lead) => { /* A lógica de tempo real já cuida disso, mas podemos manter para otimismo */ };
     const handleQualificationChange = async (leadId: number, newQualification: QualificationStatus) => { const originalLeads = [...allLeads]; setAllLeads(currentLeads => currentLeads.map(lead => lead.id === leadId ? { ...lead, qualification_status: newQualification } : lead )); const { error } = await supabase.from('leads').update({ qualification_status: newQualification }).eq('id', leadId); if (error) { alert(`Erro ao atualizar o lead: ${error.message}`); setAllLeads(originalLeads); }};
     const handleRowSelect = (leadId: number) => { setSelectedRows(prev => prev.includes(leadId) ? prev.filter(id => id !== leadId) : [...prev, leadId]); };
     const handleSelectAll = (checked: boolean | 'indeterminate') => { if (checked === true) { setSelectedRows(filteredLeadsForTable.map(lead => lead.id)); } else { setSelectedRows([]); } };

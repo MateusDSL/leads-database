@@ -58,7 +58,7 @@ export function AppSidebar() {
             <Building2 className="size-5" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-lg text-black">CRM Pro</span>
+            <span className="font-bold text-lg text-black">WhatsFloat</span>
             <span className="text-xs text-slate-500">versão 2.0</span>
           </div>
         </div>

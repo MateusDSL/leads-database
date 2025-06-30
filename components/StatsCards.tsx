@@ -35,7 +35,7 @@ export function StatsCards({
 }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-      <StyledCard className="p-4">
+      <StyledCard className="p-4 select-none">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
           <CardTitle className="text-sm font-medium">Total de Leads</CardTitle>
           <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -48,7 +48,7 @@ export function StatsCards({
         </CardContent>
       </StyledCard>
 
-      <StyledCard className="p-4 bg-gradient-to-tr from-red-400 to-orange-400 text-white">
+      <StyledCard className="p-4 select-none bg-gradient-to-tr from-red-400 to-orange-400 text-white">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
           <CardTitle className="text-sm font-medium">Leads Quentes</CardTitle>
           <Flame className="h-4 w-4 text-white/80" />
@@ -61,7 +61,7 @@ export function StatsCards({
         </CardContent>
       </StyledCard>
       
-      <StyledCard className="p-4 bg-gradient-to-tr from-sky-400 to-blue-400 text-white">
+      <StyledCard className="p-4 select-none bg-gradient-to-tr from-sky-400 to-blue-400 text-white">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
           <CardTitle className="text-sm font-medium">Leads Frios</CardTitle>
           <Snowflake className="h-4 w-4 text-white/80" />
@@ -74,7 +74,7 @@ export function StatsCards({
         </CardContent>
       </StyledCard>
 
-      <StyledCard className="p-4 bg-gradient-to-tr from-amber-400 to-yellow-400 text-white">
+      <StyledCard className="p-4 select-none bg-gradient-to-tr from-amber-400 to-yellow-400 text-white">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
           <CardTitle className="text-sm font-medium">Leads Mornos</CardTitle>
           <Sun className="h-4 w-4 text-white/80" />
@@ -87,7 +87,7 @@ export function StatsCards({
         </CardContent>
       </StyledCard>
 
-      <StyledCard className="p-4 bg-gradient-to-tr from-emerald-400 to-green-500 text-white">
+      <StyledCard className="p-4 select-none bg-gradient-to-tr from-emerald-400 to-green-500 text-white">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-0">
           <CardTitle className="text-sm font-medium">Vendas</CardTitle>
           <CheckCircle2 className="h-4 w-4 text-white/80" />

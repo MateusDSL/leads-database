@@ -1,5 +1,9 @@
+// components/user-nav.tsx
+
 "use client"
 
+import { useRouter } from "next/navigation"
+import { supabase } from "@/supabaseClient"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,6 +19,14 @@ import {
 import { User, Settings, LogOut, CreditCard, Users } from "lucide-react"
 
 export function UserNav() {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -55,7 +67,8 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        {/* Adicionado o onClick para o logout */}
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sair</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

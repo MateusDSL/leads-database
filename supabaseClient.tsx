@@ -1,6 +1,6 @@
-// /supabaseClient.tsx
+// supabaseClient.tsx
 
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr'
 
 // Busca as variáveis de ambiente de forma segura.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -11,4 +11,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("As variáveis de ambiente do Supabase não foram definidas. Verifique o seu ficheiro .env.local");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
