@@ -10,11 +10,7 @@ import { Button } from "@/components/ui/button";
 import { StyledCard } from "@/components/ui/styled-card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-  SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
-  SidebarProvider, SidebarRail, SidebarTrigger
-} from "@/components/ui/sidebar";
+import { AppSidebar } from '@/components/AppSidebar'; // Importamos o nosso novo componente!
 import { Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText, Users, User } from "lucide-react";
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { LeadsTable } from '@/components/LeadsTable';
@@ -25,6 +21,7 @@ import { supabase } from "../supabaseClient";
 import { Lead, QualificationStatus } from "@/app/page";
 import { LeadsByDayChart } from './LeadsByDayChart';
 import { format } from 'date-fns';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 const navigationData = {
     // Grupo Principal de Navegação
@@ -183,142 +180,92 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
 
 
   return (
-    <SidebarProvider>
-        <Sidebar>
-            <SidebarHeader>
-                <div className="flex items-center gap-2 px-4 py-2">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Building2 className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">CRM Pro</span>
-                    <span className="text-xs text-muted-foreground">v2.0</span>
-                </div>
-                </div>
-            </SidebarHeader>
-            <SidebarContent>
-                {navigationData.navMain.map((group) => (
-                <SidebarGroup key={group.title}>
-                    <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                    <SidebarMenu>
-                        {group.items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton asChild isActive={item.isActive}>
-                            <a href={item.url} className="flex items-center gap-2">
-                                <item.icon className="size-4" />
-                                {item.title}
-                            </a>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        ))}
-                    </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-                ))}
-            </SidebarContent>
-            <SidebarRail />
-        </Sidebar>
-        <SidebarInset>
-            <div className="min-h-screen bg-slate-100">
-            <header className="border-b-2 border-black bg-white sticky top-0 z-10">
-                <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-                    <div className="flex items-center justify-between flex-1">
-                        <div>
-                            <h1 className="text-xl font-bold">WhatsFloat</h1>
-                            <p className="text-sm text-gray-600">Seja bem-vindo de volta!</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" className="border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
-                                Configurações
-                            </Button>
-                            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="border-2 border-black font-bold bg-blue-500 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
-                                        <Plus className="w-4 h-4 mr-2" />
-                                        Novo Lead
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[550px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Adicionar Novo Lead</DialogTitle>
-                                        <DialogDescription>Preencha as informações do novo lead abaixo.</DialogDescription>
-                                    </DialogHeader>
-                                    <NewLeadForm
-                                        onLeadAdded={handleLeadAdded}
-                                        onClose={() => setIsAddDialogOpen(false)}
-                                    />
-                                </DialogContent>
-                            </Dialog>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            
-            <main className="container mx-auto px-4 py-6 space-y-6">
-                {error ? <p className="text-red-500">Erro ao carregar os dados: {error}</p> : (
-                    <>
-                        <StatsCards
-                            loading={initialLeads.length === 0 && !error}
-                            totalLeads={totalLeads}
-                            deltaLeads={deltaLeads}
-                            hotLeads={hotLeads}
-                            deltaHot={deltaHot}
-                            coldLeads={coldLeads}
-                            deltaCold={deltaCold}
-                            warmLeads={warmLeads}
-                            deltaWarm={deltaWarm}
-                            sales={sales}
-                            deltaSales={deltaSales}
-                        />
+    // O container principal define o layout em duas colunas e a altura total da tela
+    <div className="flex h-screen bg-slate-100">
+      {/* Coluna 1: A Barra Lateral */}
+      <AppSidebar />
 
-                        {/* ADICIONE O NOVO GRÁFICO AQUI */}
-                        <StyledCard>
-                            <LeadsByDayChart data={leadsByDayData} />
-                        </StyledCard>
+      {/* Coluna 2: A Área de Conteúdo Principal */}
+      <div className="flex-1 flex flex-col">
+        {/* Cabeçalho do conteúdo com a mesma altura (h-20) da sidebar */}
+        <header className="flex items-center justify-between px-6 h-20 border-b-2 border-black bg-white">
+          <div>
+            <h1 className="text-xl font-bold">Painel de Leads</h1>
+            <p className="text-sm text-gray-600">Seja bem-vindo de volta!</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
+              Configurações
+            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="border-2 border-black font-bold bg-blue-500 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Lead
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[550px]">
+                <DialogHeader>
+                  <DialogTitle>Adicionar Novo Lead</DialogTitle>
+                  <DialogDescription>Preencha as informações do novo lead abaixo.</DialogDescription>
+                </DialogHeader>
+                <NewLeadForm onLeadAdded={handleLeadAdded} onClose={() => setIsAddDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </header>
 
-                        <StyledCard>
-                            <CardHeader>
-                                <CardTitle>Todos os Leads</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                            <FilterBar
-                                searchTerm={searchTerm}
-                                onSearchTermChange={setSearchTerm}
-                                statusFilter={statusFilter}
-                                onStatusFilterChange={setStatusFilter}
-                                sourceFilter={sourceFilter}
-                                onSourceFilterChange={setSourceFilter}
-                                dateRange={dateRange}
-                                onDateChange={setDateRange}
-                                selectedRowsCount={selectedRows.length}
-                                isBulkEditDialogOpen={isBulkEditDialogOpen}
-                                onBulkEditOpenChange={setIsBulkEditDialogOpen}
-                                onNewBulkStatusChange={setNewBulkStatus}
-                                handleBulkUpdate={handleBulkUpdate}
-                                newBulkStatus={newBulkStatus}
-                            />
-                            <LeadsTable
-                                loading={initialLeads.length === 0 && !error}
-                                leads={filteredLeadsForTable}
-                                selectedRows={selectedRows}
-                                onRowSelect={handleRowSelect}
-                                onSelectAll={handleSelectAll}
-                                onQualificationChange={handleQualificationChange}
-                                onLeadClick={(lead) => setSelectedLead(lead)}
-                            />
-                            </CardContent>
-                        </StyledCard>
-                    </>
-                )}
-            </main>
-            </div>
-        </SidebarInset>
-        <LeadDetailSheet
-            isOpen={!!selectedLead}
-            onOpenChange={(isOpen) => { if (!isOpen) setSelectedLead(null); }}
-            lead={selectedLead}
-        />
-    </SidebarProvider>
+        {/* Área principal com scroll, ocupando o restante do espaço */}
+        <main className="flex-1 p-6 space-y-6 overflow-y-auto">
+          {error ? <p className="text-red-500">Erro ao carregar os dados: {error}</p> : (
+            <>
+              {/* Seus cards e tabelas aqui... */}
+              <StatsCards
+                loading={initialLeads.length === 0 && !error}
+                totalLeads={totalLeads} deltaLeads={deltaLeads}
+                hotLeads={hotLeads} deltaHot={deltaHot}
+                coldLeads={coldLeads} deltaCold={deltaCold}
+                warmLeads={warmLeads} deltaWarm={deltaWarm}
+                sales={sales} deltaSales={deltaSales}
+              />
+              <StyledCard>
+                <LeadsByDayChart data={leadsByDayData} />
+              </StyledCard>
+              <StyledCard>
+                <CardHeader>
+                  <CardTitle>Todos os Leads</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FilterBar
+                    searchTerm={searchTerm} onSearchTermChange={setSearchTerm}
+                    statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
+                    sourceFilter={sourceFilter} onSourceFilterChange={setSourceFilter}
+                    dateRange={dateRange} onDateChange={setDateRange}
+                    selectedRowsCount={selectedRows.length}
+                    isBulkEditDialogOpen={isBulkEditDialogOpen} onBulkEditOpenChange={setIsBulkEditDialogOpen}
+                    onNewBulkStatusChange={setNewBulkStatus}
+                    handleBulkUpdate={handleBulkUpdate} newBulkStatus={newBulkStatus}
+                  />
+                  <LeadsTable
+                    loading={initialLeads.length === 0 && !error}
+                    leads={filteredLeadsForTable}
+                    selectedRows={selectedRows}
+                    onRowSelect={handleRowSelect} onSelectAll={handleSelectAll}
+                    onQualificationChange={handleQualificationChange}
+                    onLeadClick={(lead) => setSelectedLead(lead)}
+                  />
+                </CardContent>
+              </StyledCard>
+            </>
+          )}
+        </main>
+      </div>
+
+      <LeadDetailSheet
+        isOpen={!!selectedLead}
+        onOpenChange={(isOpen) => { if (!isOpen) setSelectedLead(null); }}
+        lead={selectedLead}
+      />
+    </div>
   );
 }

@@ -10,10 +10,12 @@ const config: Config = {
   ],
   theme: {
   	extend: {
-      // --- ADICIONADO: Configuração da fonte ---
-      fontFamily: {
-        sans: ["var(--font-sans)", "sans-serif"],
-      },
+  		fontFamily: {
+  			sans: [
+  				'var(--font-sans)',
+  				'sans-serif'
+  			]
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
