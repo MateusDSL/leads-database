@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { 
   Home, 
@@ -43,25 +43,31 @@ const navGroups = [
   }
 ];
 
-export function AppSidebar() {
+// Interface para as propriedades do componente
+interface AppSidebarProps {
+  appName?: string;
+  appLogo?: ReactNode; // Agora podemos passar um ícone como um componente React
+}
+
+export function AppSidebar({ appName = "Sua Marca", appLogo = <Building2 className="size-5" /> }: AppSidebarProps) {
   const [activeItem, setActiveItem] = useState('dashboard');
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-slate-50 border-r-2 border-black">
-      {/* Cabeçalho da Sidebar (sem alterações) */}
-      <div className="flex items-center h-20 px-4 border-b-2 border-black">
+    <aside className="hidden md:flex flex-col w-64 bg-background border-r">
+      {/* Cabeçalho da Sidebar (AGORA É DINÂMICO) */}
+      <div className="flex items-center h-16 px-4 border-b">
         <div className="flex items-center gap-3">
           <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Building2 className="size-5" />
+            {appLogo}
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-lg text-black">WhatsFloat</span>
+            <span className="font-bold text-lg text-black">{appName}</span>
             <span className="text-xs text-slate-500">versão 2.0</span>
           </div>
         </div>
       </div>
 
-      {/* Navegação Principal (sem alterações no código, apenas nos dados) */}
+      {/* Navegação Principal (ALTERAÇÃO NO activeItem) */}
       <nav className="flex-1 px-2 py-4 space-y-4">
         {navGroups.map((group) => (
           <div key={group.title}>
@@ -76,10 +82,10 @@ export function AppSidebar() {
                     onClick={() => setActiveItem(item.id)}
                     className={cn(
                       "flex items-center justify-between gap-3 p-3 mx-2 rounded-lg text-sm font-bold transition-all duration-200",
-                      "hover:bg-blue-100 hover:text-blue-700",
+                      "hover:bg-accent hover:text-accent-foreground",
                       activeItem === item.id 
-                        ? "bg-blue-500 text-white shadow-[3px_3px_0px_rgba(0,0,0,1)]" 
-                        : "text-slate-600"
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <div className="flex items-center gap-3">

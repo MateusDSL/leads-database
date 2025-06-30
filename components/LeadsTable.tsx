@@ -1,29 +1,23 @@
-// components/LeadsTable.tsx
+"use client"
 
-import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { Lead, QualificationStatus, qualificationColors } from '@/app/page';
-import { Flame, Snowflake, Sun, CheckCircle2, Sparkles } from "lucide-react";
-import { format } from 'date-fns';
+import React, { useState, useEffect, useMemo } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Lead, QualificationStatus } from '@/app/page'
+import { format } from 'date-fns'
 
-
-
-const qualificationIcons: { [key in QualificationStatus]: React.ComponentType<{ className?: string }> } = {
-  'Novo': Sparkles,
-  'Quente': Flame,
-  'Frio': Snowflake,
-  'Morno': Sun,
-  'Venda': CheckCircle2,
-};
-
-const qualificationOptions: QualificationStatus[] = ['Novo', 'Quente', 'Morno', 'Frio', 'Venda'];
-
+// Helper functions
 const formatPhoneNumber = (phoneStr?: string) => {
     if (!phoneStr) return 'N/A';
     const digitsOnly = phoneStr.replace(/\D/g, '');
@@ -36,159 +30,153 @@ const formatPhoneNumber = (phoneStr?: string) => {
     return phoneStr;
 };
 
-const getInitials = (name?: string) => {
-    if (!name) return "";
-    const parts = name.trim().split(" ");
-    if (parts.length === 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-};
-
-const capitalizeFirstLetter = (str?: string) => {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-
 interface LeadsTableProps {
   loading: boolean;
   leads: Lead[];
   selectedRows: number[];
-  onRowSelect: (leadId: number) => void;
-  onSelectAll: (checked: boolean | 'indeterminate') => void;
+  onRowSelect: (leadIds: number[]) => void;
   onQualificationChange: (leadId: number, newQualification: QualificationStatus) => void;
   onLeadClick: (lead: Lead) => void;
 }
+
+// 1. CRIAMOS UM MAPA PARA AS CORES DAS ETIQUETAS DE QUALIFICAÇÃO
+const qualificationVariantMap: Record<QualificationStatus, React.ComponentProps<typeof Badge>['variant']> = {
+  'Quente': 'destructive',
+  'Morno': 'default',
+  'Frio': 'secondary',
+  'Novo': 'outline',
+  'Venda': 'default',
+};
 
 export function LeadsTable({
   loading,
   leads,
   selectedRows,
   onRowSelect,
-  onSelectAll,
   onQualificationChange,
   onLeadClick,
 }: LeadsTableProps) {
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    onRowSelect(checked ? leads.map((lead) => lead.id) : [])
+  }
+
+  const isAllSelected = selectedRows.length > 0 && selectedRows.length === leads.length;
+  const isSomeSelected = selectedRows.length > 0 && selectedRows.length < leads.length;
+
+  // 2. FUNÇÃO AUXILIAR PARA RENDERIZAR A ORIGEM COM ÍCONE
+  const renderOrigin = (origin: string | undefined) => {
+    const isGoogle = origin?.toLowerCase() === 'google' || origin?.toLowerCase() === 'go-ads';
+
+    if (isGoogle) {
+      return (
+        <div className="flex items-center gap-2">
+          <div className="flex size-4 items-center justify-center rounded-full bg-white border border-gray-300">
+            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.3 1.62-3.85 1.62-4.64 0-8.59-3.82-8.59-8.59s3.95-8.59 8.59-8.59c2.52 0 4.22.98 5.4 2.01l2.6-2.6C18.09 1.76 15.47 0 12.48 0 5.88 0 .04 5.88.04 12.5s5.84 12.5 12.44 12.5c3.27 0 5.74-1.15 7.6-3.05 1.96-1.96 2.56-4.94 2.56-7.66 0-.85-.09-1.35-.19-1.84h-9.9z" fill="#4285F4"/>
+            </svg>
+          </div>
+          <span>Google</span>
+        </div>
+      );
+    }
+    return <span>{origin}</span>;
+  };
+
   return (
-    <div className="rounded-lg border-2 border-black overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="border-b-2 border-black bg-slate-50 hover:bg-slate-100">
-            <TableHead className="w-[50px]">
-              <Checkbox
-                checked={
-                  leads.length > 0 && selectedRows.length === leads.length
-                    ? true
-                    : selectedRows.length > 0
-                    ? 'indeterminate'
-                    : false
-                }
-                onCheckedChange={(checked) => onSelectAll(!!checked)}
-                aria-label="Selecionar todos"
-              />
-            </TableHead>
-            {/* LINHA ADICIONADA AQUI */}
-            <TableHead className="font-bold text-black">Data</TableHead>
-            <TableHead className="font-bold text-black">Nome</TableHead>
-            <TableHead className="font-bold text-black">Telefone</TableHead>
-            <TableHead className="font-bold text-black">Origem</TableHead>
-            <TableHead className="font-bold text-black">Qualificação</TableHead>
-            <TableHead className="font-bold text-black">Comentário</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {loading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <TableRow key={i} className="border-b-2 border-black">
-                <TableCell><Skeleton className="h-5 w-5"/></TableCell>
-                {/* CÉLULA DE SKELETON ADICIONADA AQUI */}
-                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
-                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
-                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
-                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
-                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
-                <TableCell className="py-3"><Skeleton className="h-5 w-full" /></TableCell>
-              </TableRow>
-            ))
-          ) : leads.length > 0 ? (
-            leads.map((lead) => (
-              <TableRow
-                key={lead.id}
-                className="border-b-2 border-black last:border-b-0"
-                data-state={selectedRows.includes(lead.id) ? "selected" : "unselected"}
-              >
-                <TableCell>
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead style={{ width: '50px' }}>
                   <Checkbox
-                    checked={selectedRows.includes(lead.id)}
-                    onCheckedChange={() => onRowSelect(lead.id)}
-                    aria-label="Selecionar linha"
+                    checked={isAllSelected ? true : isSomeSelected ? 'indeterminate' : false}
+                    onCheckedChange={handleSelectAll}
                   />
-                </TableCell>
-                {/* CÉLULA ADICIONADA AQUI */}
-                <TableCell className="text-sm text-gray-600">
-                  {format(new Date(lead.created_at), "dd/MM/yyyy")}
-                </TableCell>
-                <TableCell
-                  className="font-bold cursor-pointer"
-                  onClick={() => onLeadClick(lead)}
-                >
-                  {/* ... resto da célula do nome ... */}
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9 border-2 border-black">
-                      <AvatarFallback className="font-bold">{getInitials(lead.name)}</AvatarFallback>
-                    </Avatar>
-                    <span>{capitalizeFirstLetter(lead.name) ?? 'N/A'}</span>
-                  </div>
-                </TableCell>
-                {/* ... resto das células ... */}
-                <TableCell>{formatPhoneNumber(lead.phone)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {lead.origem === 'Google' && (
-                      <img src="/images/logo.webp" alt="Logo do Google" className="w-4 h-4" />
-                    )}
-                    <span>{lead.origem ?? 'N/A'}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn("px-2 py-1 h-auto text-xs font-bold border-2 border-black", qualificationColors[lead.qualification_status ?? 'Novo'])}
-                      >
-                        {lead.qualification_status ?? "Novo"}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {qualificationOptions.map(status => {
-                        const Icon = qualificationIcons[status];
-                        return (
-                          <DropdownMenuItem
-                            key={status}
-                            onSelect={() => onQualificationChange(lead.id, status)}
-                          >
-                            <Icon className="w-4 h-4 mr-2" />
-                            {status}
-                          </DropdownMenuItem>
-                        )
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-                <TableCell className="text-sm text-gray-600 max-w-[200px] truncate">
-                  {lead.comment || "-"}
-                </TableCell>
+                </TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead>Origem</TableHead>
+                <TableHead>Qualificação</TableHead>
+                <TableHead>Comentário</TableHead>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-gray-500 py-8">
-                Nenhum lead encontrado com os filtros aplicados.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={`skeleton-${i}`}>
+                    <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                    </TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  </TableRow>
+                ))
+              ) : leads.length > 0 ? (
+                leads.map((lead) => (
+                  <TableRow 
+                    key={lead.id} 
+                    data-state={selectedRows.includes(lead.id) ? "selected" : "unselected"}
+                    onClick={() => onLeadClick(lead)}
+                    className="cursor-pointer"
+                  >
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedRows.includes(lead.id)}
+                        onCheckedChange={(checked) => {
+                          const newSelectedRows = checked
+                            ? [...selectedRows, lead.id]
+                            : selectedRows.filter((id) => id !== lead.id);
+                          onRowSelect(newSelectedRows);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {format(new Date(lead.created_at), "dd/MM/yyyy")}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <Avatar>
+                          <AvatarFallback>{lead.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        {lead.name}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{formatPhoneNumber(lead.phone)}</TableCell>
+                    
+                    {/* 3. CÉLULA DA ORIGEM USANDO A NOVA LÓGICA */}
+                    <TableCell>{renderOrigin(lead.origem ?? 'N/A')}</TableCell>
+
+                    {/* 4. CÉLULA DA QUALIFICAÇÃO COM CORES DINÂMICAS */}
+                    <TableCell>
+                      <Badge variant={qualificationVariantMap[lead.qualification_status ?? 'Novo'] || 'outline'}>
+                        {lead.qualification_status ?? 'Novo'}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
+                      {lead.comment || "-"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    Nenhum lead encontrado com os filtros aplicados.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }

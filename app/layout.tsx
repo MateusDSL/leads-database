@@ -1,29 +1,28 @@
 import type { Metadata } from 'next'
-import { Poppins } from 'next/font/google' // 1. Importar a fonte
+import { Inter } from 'next/font/google' // Mude de Poppins para Inter
 import './globals.css'
+import { cn } from '@/lib/utils'
 
-// 2. Configurar a fonte com os pesos que vamos usar
-const poppins = Poppins({
+const fontSans = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-sans', // Opcional, mas bom para Tailwind
+  variable: '--font-sans',
 })
 
 export const metadata: Metadata = {
-  title: 'Leads CRM', // Título atualizado para refletir melhor o projeto
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Leads CRM',
+  description: 'Dashboard de Leads com design shadcn/ui',
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="pt-BR">
-      {/* 3. Aplicar a classe da fonte ao body */}
-      <body className={poppins.className}>{children}</body>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+        {children}
+      </body>
     </html>
   )
 }

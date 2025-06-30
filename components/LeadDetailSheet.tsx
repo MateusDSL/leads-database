@@ -150,7 +150,7 @@ export function LeadDetailSheet({ lead, isOpen, onOpenChange }: LeadDetailSheetP
         </ScrollArea>
         <SheetFooter className="p-4 border-t-2 border-black bg-slate-50">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all">Cancelar</Button>
-          <Button onClick={handleSaveChanges} disabled={isSaving} className="border-2 border-black font-bold bg-blue-500 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all">
+          <Button onClick={handleSaveChanges} disabled={isSaving} className="border-2 border-black font-bold bg-primary text-primary-foreground shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all">
             {isSaving ? "A salvar..." : "Salvar Alterações"}
           </Button>
         </SheetFooter>

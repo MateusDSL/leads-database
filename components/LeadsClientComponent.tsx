@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { StyledCard } from "@/components/ui/styled-card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppSidebar } from '@/components/AppSidebar'; // Importamos o nosso novo componente!
+import { AppSidebar } from '@/components/AppSidebar';
 import { Building2, Home, Settings, Target, Mail, Phone, BarChart3, FileText, Users, User } from "lucide-react";
 import { LeadDetailSheet } from '@/components/LeadDetailSheet';
 import { LeadsTable } from '@/components/LeadsTable';
@@ -19,6 +19,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { NewLeadForm } from './NewLeadForm';
 import { supabase } from "../supabaseClient";
 import { Lead, QualificationStatus } from "@/app/page";
+import { LeadsBySourcePieChart } from './LeadsBySourcePieChart';
 import { LeadsByDayChart } from './LeadsByDayChart';
 import { format } from 'date-fns';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -130,7 +131,7 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
         return 'Outros';
     };
 
-    const leadsWithOrigin = useMemo(() => allLeads.map(lead => ({ ...lead, origem: getStandardizedOrigin((lead as any).source, (lead as any).utm_source) })), [allLeads]);
+    const leadsWithOrigin = useMemo(() => allLeads.map(lead => ({ ...lead, origin: getStandardizedOrigin((lead as any).source, (lead as any).utm_source) })), [allLeads]);
 
     const filteredLeadsForCards = useMemo(() => leadsWithOrigin.filter((lead) => {
         const matchesStatus = statusFilter === "todos" || lead.qualification_status === statusFilter;
@@ -224,25 +225,20 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
 
   return (
     // O container principal define o layout em duas colunas e a altura total da tela
-    <div className="flex h-screen bg-slate-100">
-      {/* Coluna 1: A Barra Lateral */}
+    <div className="flex h-screen bg-background">
       <AppSidebar />
-
-      {/* Coluna 2: A Área de Conteúdo Principal */}
       <div className="flex-1 flex flex-col">
-        {/* Cabeçalho do conteúdo com a mesma altura (h-20) da sidebar */}
-        <header className="flex items-center justify-between px-6 h-20 border-b-2 border-black bg-white">
+        {/* Cabeçalho do conteúdo com altura padrão, sem borda preta, fundo do tema */}
+        <header className="flex items-center justify-between px-6 h-16 border-b bg-background">
           <div>
             <h1 className="text-xl font-bold">Painel de Leads</h1>
-            <p className="text-sm text-gray-600">Seja bem-vindo de volta!</p>
+            <p className="text-sm text-muted-foreground">Visão geral do seu funil de vendas</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="border-2 border-black font-bold shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
-              Configurações
-            </Button>
+          <div className="flex gap-4">
+            <Button variant="outline">Configurações</Button>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="border-2 border-black font-bold bg-blue-500 text-white shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all">
+                <Button>
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Lead
                 </Button>
@@ -262,7 +258,6 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
         <main className="flex-1 p-6 space-y-6 overflow-y-auto">
           {error ? <p className="text-red-500">Erro ao carregar os dados: {error}</p> : (
             <>
-              {/* Seus cards e tabelas aqui... */}
               <StatsCards
                 loading={initialLeads.length === 0 && !error}
                 totalLeads={totalLeads} deltaLeads={deltaLeads}
@@ -271,14 +266,18 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
                 warmLeads={warmLeads} deltaWarm={deltaWarm}
                 sales={sales} deltaSales={deltaSales}
               />
-              <StyledCard>
+              
+              {/* Gráficos lado a lado em 2 colunas no desktop */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <LeadsByDayChart data={leadsByDayData} />
-              </StyledCard>
-              <StyledCard>
+                <LeadsBySourcePieChart leads={filteredLeadsForCards} />
+              </div>
+
+              <Card>
                 <CardHeader>
                   <CardTitle>Todos os Leads</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <FilterBar
                     searchTerm={searchTerm} onSearchTermChange={setSearchTerm}
                     statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
@@ -293,17 +292,16 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
                     loading={initialLeads.length === 0 && !error}
                     leads={filteredLeadsForTable}
                     selectedRows={selectedRows}
-                    onRowSelect={handleRowSelect} onSelectAll={handleSelectAll}
+                    onRowSelect={(leadIds) => setSelectedRows(leadIds)}
                     onQualificationChange={handleQualificationChange}
                     onLeadClick={(lead) => setSelectedLead(lead)}
                   />
                 </CardContent>
-              </StyledCard>
+              </Card>
             </>
           )}
         </main>
       </div>
-
       <LeadDetailSheet
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => { if (!isOpen) setSelectedLead(null); }}
