@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Label, Pie, PieChart, Sector } from "recharts"
+import { Label, Pie, PieChart, ResponsiveContainer, Sector } from "recharts"
 import { PieSectorDataItem } from "recharts/types/polar/Pie"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -64,7 +64,7 @@ export function LeadsBySourcePieChart({ leads }: LeadsBySourcePieChartProps) {
   
   return (
     // 1. GARANTIR QUE O CARD OCUPE TODA A ALTURA DISPONÍVEL
-    <Card data-chart={id} className="h-full flex flex-col">
+    <Card data-chart={id} className="h-full flex flex-col min-h-[260px]">
       <ChartStyle id={id} config={chartConfig} />
       <CardHeader className="flex-row items-start space-y-0 pb-0">
         <div className="grid gap-1">
@@ -97,56 +97,59 @@ export function LeadsBySourcePieChart({ leads }: LeadsBySourcePieChartProps) {
           </SelectContent>
         </Select>
       </CardHeader>
-      {/* 2. FAZER O GRÁFICO EXPANDIR PARA PREENCHER O ESPAÇO */}
-      <CardContent className="flex-1 flex items-center justify-center pb-0">
+      <CardContent className="flex flex-1 items-center pb-0">
+        {/* ===== ÁREA MODIFICADA ===== */}
+        {/* Diminuindo a altura máxima do container do gráfico de 250px para 200px */}
         <ChartContainer
-          id={id}
           config={chartConfig}
-          className="mx-auto aspect-square w-full"
+          className="mx-auto aspect-square h-full max-h-[200px]"
         >
-          <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-            <Pie
-              data={dataBySource}
-              dataKey="count"
-              nameKey="source"
-              innerRadius={60}
-              strokeWidth={5}
-              activeIndex={activeIndex}
-              activeShape={({
-                outerRadius = 0,
-                ...props
-              }: PieSectorDataItem) => (
-                <g>
-                  <Sector {...props} outerRadius={outerRadius + 4} />
-                  <Sector
-                    {...props}
-                    outerRadius={outerRadius + 10}
-                    innerRadius={outerRadius + 6}
-                    fill="hsl(var(--primary))"
-                  />
-                </g>
-              )}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox && activeIndex !== -1) {
-                    return (
-                      <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                        <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
-                          {dataBySource[activeIndex].count.toLocaleString()}
-                        </tspan>
-                        <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
-                          Leads
-                        </tspan>
-                      </text>
-                    )
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+              <Pie
+                data={dataBySource}
+                dataKey="count"
+                nameKey="source"
+                innerRadius={60}
+                strokeWidth={5}
+                activeIndex={activeIndex}
+                activeShape={({
+                  outerRadius = 0,
+                  ...props
+                }: PieSectorDataItem) => (
+                  <g>
+                    <Sector {...props} outerRadius={outerRadius + 4} />
+                    <Sector
+                      {...props}
+                      outerRadius={outerRadius + 10}
+                      innerRadius={outerRadius + 6}
+                      fill="hsl(var(--primary))"
+                    />
+                  </g>
+                )}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox && activeIndex !== -1) {
+                      return (
+                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                          <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
+                            {dataBySource[activeIndex].count.toLocaleString()}
+                          </tspan>
+                          <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
+                            Leads
+                          </tspan>
+                        </text>
+                      )
+                    }
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
         </ChartContainer>
+        {/* ===== FIM DA ÁREA MODIFICADA ===== */}
       </CardContent>
     </Card>
   )

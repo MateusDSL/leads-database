@@ -268,12 +268,12 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
               />
               
               {/* ===== ÁREA MODIFICADA ===== */}
-              {/* Gráficos com proporção 80-20 em ecrãs grandes */}
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-4">
+              {/* Gráficos com proporção 60-40 em ecrãs grandes e com a mesma altura */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+                <div className="lg:col-span-3">
                   <LeadsByDayChart data={leadsByDayData} />
                 </div>
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-2">
                   <LeadsBySourcePieChart leads={filteredLeadsForCards} />
                 </div>
               </div>

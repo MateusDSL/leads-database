@@ -43,38 +43,42 @@ export function LeadsByDayChart({ data }: { data: ChartData[] }) {
           Novos leads recebidos no período selecionado
         </CardDescription>
       </CardHeader>
-      {/* 2. AJUSTAR A ALTURA DO GRÁFICO E FAZÊ-LO EXPANDIR */}
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="h-full w-full">
-          <BarChart 
-            accessibilityLayer 
-            data={data} 
-            margin={{ left: -10, right: 10, top: 10 }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              // 3. CORREÇÃO DA DATA PARA IGNORAR FUSO HORÁRIO
-              tickFormatter={(value) => {
-                const [year, month, day] = value.split('-').map(Number);
-                const date = new Date(year, month - 1, day);
-                return format(date, "dd/MM");
-              }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
-            />
-            <Bar 
-              dataKey="leads" 
-              fill="var(--color-leads)"
-              radius={8} 
-            />
-          </BarChart>
-        </ChartContainer>
+      <CardContent>
+        {/* ===== ÁREA MODIFICADA ===== */}
+        {/* Diminuindo a altura do container do gráfico de 300px para 200px */}
+        <div className="h-[200px]">
+          <ChartContainer config={chartConfig} className="h-full w-full min-h-[220px]">
+            <BarChart 
+              accessibilityLayer 
+              data={data} 
+              margin={{ left: -10, right: 10, top: 10 }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                // 3. CORREÇÃO DA DATA PARA IGNORAR FUSO HORÁRIO
+                tickFormatter={(value) => {
+                  const [year, month, day] = value.split('-').map(Number);
+                  const date = new Date(year, month - 1, day);
+                  return format(date, "dd/MM");
+                }}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="dot" />}
+              />
+              <Bar 
+                dataKey="leads" 
+                fill="var(--color-leads)"
+                radius={8} 
+              />
+            </BarChart>
+          </ChartContainer>
+        </div>
+        {/* ===== FIM DA ÁREA MODIFICADA ===== */}
       </CardContent>
     </Card>
   )
