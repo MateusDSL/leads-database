@@ -35,6 +35,7 @@ const chartConfig = {
 // O componente em si, que recebe os dados como propriedade
 export function LeadsByDayChart({ data }: { data: ChartData[] }) {
   return (
+    // 1. GARANTIR QUE O CARD OCUPE TODA A ALTURA DISPONÍVEL
     <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle>Leads por Dia</CardTitle>
@@ -42,8 +43,9 @@ export function LeadsByDayChart({ data }: { data: ChartData[] }) {
           Novos leads recebidos no período selecionado
         </CardDescription>
       </CardHeader>
+      {/* 2. AJUSTAR A ALTURA DO GRÁFICO E FAZÊ-LO EXPANDIR */}
       <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart 
             accessibilityLayer 
             data={data} 

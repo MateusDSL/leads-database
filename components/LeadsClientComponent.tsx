@@ -267,11 +267,17 @@ export default function LeadsClientComponent({ initialLeads, serverError }: Lead
                 sales={sales} deltaSales={deltaSales}
               />
               
-              {/* Gráficos lado a lado em 2 colunas no desktop */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <LeadsByDayChart data={leadsByDayData} />
-                <LeadsBySourcePieChart leads={filteredLeadsForCards} />
+              {/* ===== ÁREA MODIFICADA ===== */}
+              {/* Gráficos com proporção 80-20 em ecrãs grandes */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-4">
+                  <LeadsByDayChart data={leadsByDayData} />
+                </div>
+                <div className="lg:col-span-1">
+                  <LeadsBySourcePieChart leads={filteredLeadsForCards} />
+                </div>
               </div>
+              {/* ===== FIM DA ÁREA MODIFICADA ===== */}
 
               <Card>
                 <CardHeader>

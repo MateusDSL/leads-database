@@ -42,12 +42,12 @@
  
     --radius: 0.75rem; /* Bordas um pouco mais arredondadas */
 
-    /* Cores do Gráfico (mantidas) */
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* ===== ÁREA MODIFICADA - NOVA PALETA DE CORES VERDE PARA GRÁFICOS ===== */
+    --chart-1: 142.1 76% 36%;  /* Verde Principal (igual ao --primary) */
+    --chart-2: 142.1 65% 45%;  /* Verde Médio */
+    --chart-3: 142.1 70% 28%;  /* Verde Escuro */
+    --chart-4: 142.1 60% 55%;  /* Verde Claro */
+    --chart-5: 142.1 80% 20%;  /* Verde Mais Escuro */
   }
  
   /* TEMA PADRÃO SHADCN/UI - MODO ESCURO */
@@ -79,6 +79,13 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 142.1 76.2% 36.3%;
+
+    /* ===== ÁREA MODIFICADA - Cores para modo escuro também em tons de verde ===== */
+    --chart-1: 142.1 76% 36%;
+    --chart-2: 142.1 65% 45%;
+    --chart-3: 142.1 70% 28%;
+    --chart-4: 142.1 60% 55%;
+    --chart-5: 142.1 80% 20%;
   }
 }
 
